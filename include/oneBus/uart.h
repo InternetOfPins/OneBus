@@ -90,4 +90,37 @@ namespace oneBus {
 
   } // hw::avr
   // chip::Serial0<> resolves via the chip namespace alias (mega/mega2560/mega1284)
+
+#elif defined(__arm__)
+  #include <chips/stm32/stm32Uart.h>
+  namespace hw::stm32 {
+
+    namespace f1 {
+      // USART1: PA9 TX / PA10 RX  (default on Blue Pill)
+      template<uint32_t BaudRate, uint32_t CpuHz = 72000000UL>
+      using Serial0 = hapi::APIOf<oneBus::UartDef, oneBus::Uart<BaudRate>,
+                                  Stm32UsartCore<0x40013800u, Stm32F1_Usart1_PA9_PA10, CpuHz>>;
+      // USART2: PA2 TX / PA3 RX
+      template<uint32_t BaudRate, uint32_t CpuHz = 72000000UL>
+      using Serial1 = hapi::APIOf<oneBus::UartDef, oneBus::Uart<BaudRate>,
+                                  Stm32UsartCore<0x40004400u, Stm32F1_Usart2_PA2_PA3, CpuHz>>;
+      // USART3: PB10 TX / PB11 RX
+      template<uint32_t BaudRate, uint32_t CpuHz = 72000000UL>
+      using Serial2 = hapi::APIOf<oneBus::UartDef, oneBus::Uart<BaudRate>,
+                                  Stm32UsartCore<0x40004800u, Stm32F1_Usart3_PB10_PB11, CpuHz>>;
+    }
+
+    namespace f4 {
+      // USART1: PA9 TX / PA10 RX
+      template<uint32_t BaudRate, uint32_t CpuHz = 168000000UL>
+      using Serial0 = hapi::APIOf<oneBus::UartDef, oneBus::Uart<BaudRate>,
+                                  Stm32UsartCore<0x40011000u, Stm32F4_Usart1_PA9_PA10, CpuHz>>;
+      // USART2: PA2 TX / PA3 RX
+      template<uint32_t BaudRate, uint32_t CpuHz = 168000000UL>
+      using Serial1 = hapi::APIOf<oneBus::UartDef, oneBus::Uart<BaudRate>,
+                                  Stm32UsartCore<0x40004400u, Stm32F4_Usart2_PA2_PA3, CpuHz>>;
+    }
+
+  } // hw::stm32
+  // chip::Serial0<> resolves via the chip namespace alias (f1/f4)
 #endif
