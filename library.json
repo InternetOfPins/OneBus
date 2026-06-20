@@ -1,0 +1,20 @@
+{
+  "name": "OneBus",
+  "version": "0.1.0",
+  "description": "HAPI bus protocol components — SPI, I2C, UART, 1-Wire. Parameterized on chip from OneChip.",
+  "keywords": ["hapi", "spi", "i2c", "uart", "1-wire", "embedded", "avr"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/neu-rah/OneBus"
+  },
+  "authors": {
+    "name": "Rui Azevedo",
+    "email": "ruihfazevedo@gmail.com"
+  },
+  "license": "LGPL-2.1",
+  "headers": "oneBus/oneBus.h",
+  "dependencies": {
+    "HAPI": "*",
+    "OneChip": "*"
+  }
+}
