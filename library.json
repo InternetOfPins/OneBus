@@ -1,6 +1,6 @@
 {
   "name": "OneBus",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "HAPI bus protocol components — SPI, I2C, UART, 1-Wire. Parameterized on chip from OneChip.",
   "keywords": ["hapi", "spi", "i2c", "uart", "1-wire", "embedded", "avr"],
   "repository": {
