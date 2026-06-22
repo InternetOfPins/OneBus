@@ -5,6 +5,7 @@
  */
 
 #pragma once
+#include <oneBus/busAPI.h>
 #include <oneBus/spi.h>
 #include <oneBus/i2c.h>
 #include <oneBus/uart.h>
