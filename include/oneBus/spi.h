@@ -100,4 +100,26 @@ namespace oneBus {
     }
 
   } // hw::avr
+
+#elif defined(__arm__)
+  #include <chips/stm32/stm32Spi.h>
+  namespace hw::stm32 {
+
+    namespace f1 {
+      template<uint32_t Speed = 4000000UL, uint8_t Mode = 0,
+               bool MSBFirst = true, uint32_t ApbHz = 72000000UL>
+      using Spi_ = hapi::APIOf<oneBus::SpiAPI, oneBus::SpiMaster<Speed>,
+                               Stm32SpiCore<0x40013000u, Stm32F1_Spi1_PA5_PA6_PA7,
+                                            ApbHz, Mode, MSBFirst>>;
+    }
+
+    namespace f4 {
+      template<uint32_t Speed = 4000000UL, uint8_t Mode = 0,
+               bool MSBFirst = true, uint32_t ApbHz = 84000000UL>
+      using Spi_ = hapi::APIOf<oneBus::SpiAPI, oneBus::SpiMaster<Speed>,
+                               Stm32SpiCore<0x40013000u, Stm32F4_Spi1_PA5_PA6_PA7,
+                                            ApbHz, Mode, MSBFirst>>;
+    }
+
+  } // hw::stm32
 #endif

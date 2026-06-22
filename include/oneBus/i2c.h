@@ -93,4 +93,24 @@ namespace oneBus {
     }
 
   } // hw::avr
+
+#elif defined(__arm__)
+  #include <chips/stm32/stm32Twi.h>
+  namespace hw::stm32 {
+
+    namespace f1 {
+      // Twi<> defined in stm32f103.h — included when the chip header is pulled in.
+      // Direct composition available here for users without a chip catalog header.
+      template<uint32_t SclHz = 100000UL, uint32_t ApbHz = 36000000UL>
+      using Twi_ = hapi::APIOf<oneBus::TwiAPI,
+                               Stm32I2cCore<0x40005400u, Stm32F1_I2c1_PB6_PB7, ApbHz>>;
+    }
+
+    namespace f4 {
+      template<uint32_t SclHz = 100000UL, uint32_t ApbHz = 42000000UL>
+      using Twi_ = hapi::APIOf<oneBus::TwiAPI,
+                               Stm32I2cCore<0x40005400u, Stm32F4_I2c1_PB6_PB7, ApbHz>>;
+    }
+
+  } // hw::stm32
 #endif
