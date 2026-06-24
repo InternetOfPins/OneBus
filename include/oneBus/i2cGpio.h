@@ -1,4 +1,5 @@
 #pragma once
+#include <oneBus/twiMaster.h>
 #include <stdint.h>
 
 namespace oneBus {
@@ -13,6 +14,8 @@ namespace oneBus {
   /// @brief I2C GPIO expander (PCF8574-style): shadow register + Pin<N> sub-struct for bit control
   template<typename TwiMaster, uint8_t Addr, uint8_t InitShadow = 0x00>
   struct I2cGpio {
+    static_assert(oneBus::is_twi_master<TwiMaster>::value,
+      "TwiMaster must satisfy oneBus::is_twi_master — see <oneBus/twiMaster.h>");
     static inline uint8_t shadow = InitShadow;
 
     static void flush() { TwiMaster::send(Addr, shadow); }
