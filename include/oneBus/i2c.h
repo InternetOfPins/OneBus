@@ -18,8 +18,7 @@
 
 namespace oneBus {
 
-  // Protocol component — streaming read/write above the hardware core.
-  // Calls Base::twi_init/twi_start/twi_stop/twi_write/twi_read.
+  /// @brief I2C master protocol component; begin_write/write_byte/end_write over the hardware core
   template<uint32_t Freq = 100000UL>
   struct I2cMaster {
     template<typename O>

@@ -16,9 +16,7 @@
 
 namespace oneBus {
 
-  // Protocol component — sits above the hardware core in the chain.
-  // putch/getch/available come from the core (via this->), not wrapped here.
-  // Only begin() reaches Base:: — for the uart_init private init primitive.
+  /// @brief UART protocol component; begin() initialises the baud rate via the hardware core
   template<uint32_t BaudRate>
   struct Uart {
     template<typename O>

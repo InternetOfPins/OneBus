@@ -22,9 +22,7 @@
 
 namespace oneBus {
 
-  // Protocol component — transfer/send/fill above the hardware core.
-  // Calls Base::spi_init(Speed) and Base::spi_transfer(byte).
-  // Mode and bit-order are hardware register settings — they live in AvrSpiCore<>.
+  /// @brief SPI master protocol component; transfer/send/fill over the hardware core
   template<uint32_t Speed = 4000000UL>
   struct SpiMaster {
     template<typename O>
@@ -42,9 +40,7 @@ namespace oneBus {
     };
   };
 
-  // Optional CS layer — sits above SpiMaster<>, manages one GPIO chip-select.
-  // CsPortAddr: memory address of PORTx register (e.g. 0x25 for PORTB on ATmega328).
-  // DDRx is assumed to be at CsPortAddr-1 (standard AVR layout).
+  /// @brief SPI chip-select layer: asserts CS low on begin, deasserts on end
   template<uintptr_t CsPortAddr, uint8_t CsBit>
   struct ChipSelect {
     template<typename O>

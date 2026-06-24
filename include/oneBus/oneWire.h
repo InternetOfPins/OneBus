@@ -9,6 +9,7 @@
 
 namespace oneBus {
 
+  /// @brief 1-Wire bus protocol component; reset/readBit/writeByte/readByte
   template<typename Chip, typename Pin>
   struct OneWire {
     struct Part {

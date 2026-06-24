@@ -10,6 +10,7 @@ namespace oneBus {
   //
   // Pin<N>::on/off/get implement the same interface as a physical OutPin —
   // they can be used wherever IOP expects a pin type.
+  /// @brief I2C GPIO expander (PCF8574-style): shadow register + Pin<N> sub-struct for bit control
   template<typename TwiMaster, uint8_t Addr, uint8_t InitShadow = 0x00>
   struct I2cGpio {
     static inline uint8_t shadow = InitShadow;
