@@ -1,64 +1,101 @@
 # OneBus
 
-HAPI bus protocol components — I2C, SPI, UART, 1-Wire, I2C GPIO expander. Parameterized on chip from [OneChip](https://github.com/InternetOfPins/OneChip).
+HAPI bus protocol components — SPI, I2C/TWI, UART, 1-Wire, and I2C GPIO expander. Parameterized on chip from [OneChip](https://github.com/InternetOfPins/OneChip); zero dynamic allocation, pure-static dispatch.
 
-## Components
+Part of the [InternetOfPins](https://github.com/InternetOfPins) project family.
 
-### `I2c<Chip>` — I2C/TWI master
-
-```cpp
-static void    init(uint32_t freq = 100000UL);
-static bool    start(uint8_t addr, bool write);
-static void    stop();
-static bool    write(uint8_t data);
-static uint8_t read(bool ack);
-```
-
-### `Spi<Chip>` — SPI master
+## SPI
 
 ```cpp
-static void    init(uint8_t clockDiv = 4);
-static void    select();
-static void    deselect();
-static uint8_t transfer(uint8_t data);
-static void    transferBuf(uint8_t* buf, uint16_t len);
+#include <oneBus/spiMaster.h>
+using namespace oneBus;
+
+// AVR hardware SPI — clock = F_CPU / speed_divisor
+using MySpi = SpiMaster<SPI_CLOCK_DIV4>;
+MySpi::begin();
+MySpi::select();             // assert CS (your OutPin)
+uint8_t b = MySpi::transfer(0xFF);
+MySpi::deselect();
 ```
 
-### `Uart<Chip>` — UART
+For ESP32: `Esp32SpiMaster<>` in [OneChip](https://github.com/InternetOfPins/OneChip), which also provides `transfer(buf, len)`.
+
+## I2C / TWI
 
 ```cpp
-static void    init(uint32_t baud);
-static void    write(uint8_t data);
-static uint8_t read();
-static bool    available();
+#include <oneBus/twiMaster.h>
+
+// AVR hardware TWI — 100 kHz at 16 MHz
+using MyI2c = hw::avr::AvrTwiMaster<100000UL, F_CPU>;
+MyI2c::begin();
+MyI2c::begin_write(0x3C);
+MyI2c::write_byte(0x00);
+MyI2c::write_byte(data);
+MyI2c::end_write();
 ```
 
-### `OneWire<Chip>` — 1-Wire bus
+## UART
 
 ```cpp
-static void reset();
-static void write(uint8_t data);
-static uint8_t read();
+#include <oneBus/uart.h>
 ```
 
-### `I2cGpio<TwiMaster, Addr, InitShadow>` — PCF8574 I2C GPIO expander
+Chip-family Serial aliases live in `OneBus/uart.h`. Chip definitions (baud rates, register addresses) come from [OneChip](https://github.com/InternetOfPins/OneChip).
 
-Virtual output pins over I2C. Used by [OneIO](https://github.com/InternetOfPins/OneIO) LCD backpack driver.
+## 1-Wire
+
+Two cores are provided:
+
+### `OneWire<PinN>` — Arduino bit-bang (any target)
 
 ```cpp
-using Port = I2cGpio<MyI2c, 0x27, 0x08>;   // InitShadow=0x08: backlight on
-using RS   = Port::Pin<0>;
-using EN   = Port::Pin<2>;
-RS::on(); EN::off();
+#include <oneBus/oneWire.h>
+
+using Bus = oneBus::OneWire<4>;  // Arduino pin 4
+Bus::begin();
+bool present = Bus::reset();
+Bus::skip();                      // 0xCC — address single device
+Bus::writeByte(0x44);             // Convert T (DS18B20)
 ```
 
-## Usage
-
-Components compose with [HAPI](https://github.com/InternetOfPins/HAPI) chains.
-Chip implementations live in [OneChip](https://github.com/InternetOfPins/OneChip).
+### `AvrOneWire<Port, Bit>` — direct register, cycle-accurate (AVR only)
 
 ```cpp
-#include <oneBus/i2c.h>
-using MyI2c = oneBus::I2c<hw::avr::AvrChip>;
-MyI2c::Part::init(400000UL);
+#include <oneBus/oneWire.h>
+#include <chips/avr/avrPort.h>
+
+// PC4 = Arduino A4 on ATmega328P
+using Bus = oneBus::AvrOneWire<hw::avr::chip::PortC, 4>;
 ```
+
+`AvrOneWire` uses direct DDR/PORT/PIN register access and `_delay_us()` (cycle-counted at `F_CPU`). `cli()`/`sei()` guard only the critical edges of each bit slot; the 480 µs reset pulse runs with interrupts enabled.
+
+Both cores expose the same protocol API: `begin()`, `reset()`, `writeByte()`, `readByte()`, `skip()`.
+
+## I2C GPIO expander — PCF8574
+
+```cpp
+#include <oneBus/i2cGpio.h>
+
+// InitShadow = 0x08 → bit 3 high (backlight on for LCD backpacks)
+using Port = oneBus::I2cGpio<MyI2c, 0x27, 0x08>;
+using RS   = typename Port::Pin<0>;
+using EN   = typename Port::Pin<2>;
+
+Port::begin();
+RS::on();
+EN::off();
+```
+
+`I2cGpio<>` manages a shadow register for read-modify-write; pin changes are batched into a single I2C write per `flush()` (or immediately if you prefer).
+
+## Dependencies
+
+- [HAPI](https://github.com/InternetOfPins/HAPI)
+- [OneChip](https://github.com/InternetOfPins/OneChip)
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+*Author: Rui Azevedo (neu-rah) · Azores, Portugal*
