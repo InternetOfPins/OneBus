@@ -30,10 +30,11 @@
  */
 
 #pragma once
-#include <type_traits>
 #ifdef __AVR__
+  #include <hapi/platform/avr/avr_std.h>
   #include <stdint.h>
 #else
+  #include <type_traits>
   #include <cstdint>
 #endif
 
