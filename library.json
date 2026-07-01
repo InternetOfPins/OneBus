@@ -5,7 +5,7 @@
   "keywords": ["hapi", "spi", "i2c", "uart", "1-wire", "embedded", "avr"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/neu-rah/OneBus"
+    "url": "https://github.com/InternetOfPins/OneBus.git"
   },
   "authors": {
     "name": "Rui Azevedo",

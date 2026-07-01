@@ -20,7 +20,11 @@
 #ifdef ARDUINO
 #include <Wire.h>
 #include <stdint.h>
-#include <type_traits>
+#ifdef __AVR__
+  #include <hapi/platform/avr/avr_std.h>  // no <type_traits> on AVR, even under Arduino
+#else
+  #include <type_traits>
+#endif
 
 namespace oneBus {
 
