@@ -111,5 +111,16 @@ namespace oneBus {
                                Stm32I2cCore<0x40005400u, Stm32F4_I2c1_PB6_PB7, ApbHz, SclHz>>;
     }
 
+    namespace f0 {
+      // Stm32I2cV2Core, NOT Stm32I2cCore — F0's I2C is a different peripheral
+      // design ("I2C_V2") from F1/F4's, see stm32Twi.h. ApbHz default 8MHz
+      // matches f0::SysClk's HSI-reset default; only (8MHz,100kHz) and
+      // (48MHz,100kHz) have verified TIMINGR constants — anything else is a
+      // compile error by design, see stm32_i2c_v2_timing().
+      template<uint32_t SclHz = 100000UL, uint32_t ApbHz = 8000000UL>
+      using Twi_ = hapi::APIOf<oneBus::TwiAPI,
+                               Stm32I2cV2Core<0x40005400u, Stm32F0_I2c1_PA9_PA10, ApbHz, SclHz>>;
+    }
+
   } // hw::stm32
 #endif

@@ -117,5 +117,18 @@ namespace oneBus {
                                             ApbHz, Mode, MSBFirst>>;
     }
 
+    namespace f0 {
+      // ApbHz default 8MHz matches f0::SysClk's HSI-reset default; override for
+      // framework=arduino builds, whose actual running clock differs (see
+      // feedback_stm32_usart_v2 in project memory — f0::SysClk doesn't configure
+      // the PLL, so under framework=arduino the true clock is whatever the vendor
+      // startup set, commonly 48MHz).
+      template<uint32_t Speed = 4000000UL, uint8_t Mode = 0,
+               bool MSBFirst = true, uint32_t ApbHz = 8000000UL>
+      using Spi_ = hapi::APIOf<oneBus::SpiAPI, oneBus::SpiMaster<Speed>,
+                               Stm32SpiCore<0x40013000u, Stm32F0_Spi1_PA5_PA6_PA7,
+                                            ApbHz, Mode, MSBFirst>>;
+    }
+
   } // hw::stm32
 #endif
