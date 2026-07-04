@@ -32,4 +32,15 @@ namespace oneBus {
     static uint8_t spi_transfer(uint8_t) = delete;
   };
 
+  // BLE/GATT terminal — deletes primitives so a missing chip core is a compile error.
+  // A characteristic is identified by id (GATT handle or a chip-side table index);
+  // UUID<->id/handle mapping and stack/advertising bring-up live in the chip override.
+  // char_write/char_read/char_written are the public API; connected() gates them.
+  struct BleAPI : BusAPI {
+    static void    char_write(uint16_t id, const uint8_t*, uint8_t len) = delete;
+    static uint8_t char_read(uint16_t id, uint8_t*, uint8_t maxLen)     = delete;
+    static bool    char_written(uint16_t id)                           = delete;
+    static bool    connected()                                         = delete;
+  };
+
 } // oneBus
