@@ -91,11 +91,6 @@ EN::off();
 
 `I2cGpio<>` manages a shadow register for read-modify-write; pin changes are batched into a single I2C write per `flush()` (or immediately if you prefer).
 
-## Dependencies
-
-- [HAPI](https://github.com/InternetOfPins/HAPI)
-- [OneChip](https://github.com/InternetOfPins/OneChip)
-
 ## License
 
 MIT — see [LICENSE](LICENSE).
