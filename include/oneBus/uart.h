@@ -110,4 +110,24 @@ namespace oneBus {
     }
 
   } // hw::stm32
+
+// ESP32 (Xtensa) isn't __arm__ — needs its own branch. ESP32 (Arduino-ESP32 core) and
+// CONFIG_IDF_TARGET_ESP32 (bare ESP-IDF) between them cover both esp32Uart.h build modes.
+// Nested in `namespace esp32 { ... }` (not bare in hw::esp32) to match esp32SysClock.h's
+// own convention — esp32Device.h's `namespace chip = esp32;` is what makes chip::Serial0
+// resolve, same as every other esp32 chip:: member.
+#elif defined(ESP32) || defined(CONFIG_IDF_TARGET_ESP32)
+  #include <chips/esp32/esp32Uart.h>
+  namespace hw::esp32 {
+    namespace esp32 {
+
+      template<uint32_t BaudRate>
+      using Serial0 = hapi::APIOf<oneBus::UartAPI, oneBus::Uart<BaudRate>, Esp32UsartCore<0>>;
+      template<uint32_t BaudRate>
+      using Serial1 = hapi::APIOf<oneBus::UartAPI, oneBus::Uart<BaudRate>, Esp32UsartCore<1>>;
+      template<uint32_t BaudRate>
+      using Serial2 = hapi::APIOf<oneBus::UartAPI, oneBus::Uart<BaudRate>, Esp32UsartCore<2>>;
+
+    } // hw::esp32::esp32
+  } // hw::esp32
 #endif
