@@ -1,11 +1,14 @@
 /**
  * @file spi.h
- * @brief SPI protocol component + chip-family Spi<> aliases.
+ * @brief SPI protocol component.
+ *
+ * Board-specific Spi<> aliases are defined in the chip headers:
+ *   - chips/avr/avrSpi.h for AVR families
+ *   - chips/stm32/stm32Spi.h for STM32 families
  *
  * Usage (AVR):
  *   #include <chips/avr/avrDevice.h>
- *   #include <oneBus/spi.h>
- *   using Bus = chip::Spi<4000000>;
+ *   using Bus = chip::Spi<4000000>;  // namespace alias from avrSpi.h
  *   Bus::begin();
  *   uint8_t r = Bus::transfer(0xAB);
  *   Bus::send(buf, len);
@@ -65,70 +68,3 @@ namespace oneBus {
   };
 
 } // oneBus
-
-// ── Chip-family Spi<> aliases ─────────────────────────────────────────────────
-// chip::Spi<4000000> resolves via the namespace alias set in the chip header.
-
-#if defined(__AVR__)
-  #include <chips/avr/avrSpi.h>
-  namespace hw::avr {
-
-    namespace mega {
-      // Speed: SCK frequency in Hz, Mode: 0-3 (CPOL/CPHA), MSBFirst: bit order
-      template<uint32_t Speed = 4000000UL, uint8_t Mode = 0,
-               bool MSBFirst = true, uint32_t CpuHz = 16000000UL>
-      using Spi = hapi::APIOf<oneBus::SpiAPI, oneBus::SpiMaster<Speed>,
-                              AvrSpiCore<CpuHz, Mode, MSBFirst>>;
-    }
-
-    namespace mega2560 {
-      template<uint32_t Speed = 4000000UL, uint8_t Mode = 0,
-               bool MSBFirst = true, uint32_t CpuHz = 16000000UL>
-      using Spi = hapi::APIOf<oneBus::SpiAPI, oneBus::SpiMaster<Speed>,
-                              AvrSpiCore<CpuHz, Mode, MSBFirst>>;
-    }
-
-    namespace mega1284 {
-      template<uint32_t Speed = 4000000UL, uint8_t Mode = 0,
-               bool MSBFirst = true, uint32_t CpuHz = 16000000UL>
-      using Spi = hapi::APIOf<oneBus::SpiAPI, oneBus::SpiMaster<Speed>,
-                              AvrSpiCore<CpuHz, Mode, MSBFirst>>;
-    }
-
-  } // hw::avr
-
-#elif defined(__arm__)
-  #include <chips/stm32/stm32Spi.h>
-  namespace hw::stm32 {
-
-    namespace f1 {
-      template<uint32_t Speed = 4000000UL, uint8_t Mode = 0,
-               bool MSBFirst = true, uint32_t ApbHz = 72000000UL>
-      using Spi_ = hapi::APIOf<oneBus::SpiAPI, oneBus::SpiMaster<Speed>,
-                               Stm32SpiCore<0x40013000u, Stm32F1_Spi1_PA5_PA6_PA7,
-                                            ApbHz, Mode, MSBFirst>>;
-    }
-
-    namespace f4 {
-      template<uint32_t Speed = 4000000UL, uint8_t Mode = 0,
-               bool MSBFirst = true, uint32_t ApbHz = 84000000UL>
-      using Spi_ = hapi::APIOf<oneBus::SpiAPI, oneBus::SpiMaster<Speed>,
-                               Stm32SpiCore<0x40013000u, Stm32F4_Spi1_PA5_PA6_PA7,
-                                            ApbHz, Mode, MSBFirst>>;
-    }
-
-    namespace f0 {
-      // ApbHz default 8MHz matches f0::SysClk's HSI-reset default; override for
-      // framework=arduino builds, whose actual running clock differs (see
-      // feedback_stm32_usart_v2 in project memory — f0::SysClk doesn't configure
-      // the PLL, so under framework=arduino the true clock is whatever the vendor
-      // startup set, commonly 48MHz).
-      template<uint32_t Speed = 4000000UL, uint8_t Mode = 0,
-               bool MSBFirst = true, uint32_t ApbHz = 8000000UL>
-      using Spi_ = hapi::APIOf<oneBus::SpiAPI, oneBus::SpiMaster<Speed>,
-                               Stm32SpiCore<0x40013000u, Stm32F0_Spi1_PA5_PA6_PA7,
-                                            ApbHz, Mode, MSBFirst>>;
-    }
-
-  } // hw::stm32
-#endif
