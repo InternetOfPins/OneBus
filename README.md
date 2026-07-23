@@ -1,5 +1,7 @@
 # OneBus
 
+<img src="logo.png" alt="OneBus logo" width="64" height="64">
+
 **HAPI Compatibility:** Works with new Check/Apply/ApplyPack API (2026-Q2)
 
 HAPI bus protocol components — SPI, I2C/TWI, UART, 1-Wire, and I2C GPIO expander. Parameterized on chip from [OneChip](https://github.com/InternetOfPins/OneChip); zero dynamic allocation, pure-static dispatch.
