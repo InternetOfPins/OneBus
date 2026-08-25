@@ -25,7 +25,7 @@ namespace oneBus {
       static void on()         { I2cGpio::shadow |=  (1u << N); I2cGpio::flush(); }
       static void off()        { I2cGpio::shadow &= ~(1u << N); I2cGpio::flush(); }
       static void set(bool v)  { v ? on() : off(); }
-      static bool get()        { return (I2cGpio::shadow >> N) & 1u; }
+      [[nodiscard]] static bool get()        { return (I2cGpio::shadow >> N) & 1u; }
       static void begin()      { TwiMaster::begin(); }  // idempotent TWI init
       static void toggle()     { I2cGpio::shadow ^=  (1u << N); I2cGpio::flush(); }
     };

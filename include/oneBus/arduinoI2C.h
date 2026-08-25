@@ -35,10 +35,10 @@ namespace oneBus {
     static void    begin_write(uint8_t addr)              { wire.beginTransmission(addr); }
     static void    write_byte(uint8_t b)                  { wire.write(b); }
     static void    end_write()                            { wire.endTransmission(); }
-    static uint8_t request_from(uint8_t addr, uint8_t n) {
+    [[nodiscard]] static uint8_t request_from(uint8_t addr, uint8_t n) {
       return (uint8_t)wire.requestFrom(addr, (uint8_t)n);
     }
-    static uint8_t read_byte()                            { return (uint8_t)wire.read(); }
+    [[nodiscard]] static uint8_t read_byte()                            { return (uint8_t)wire.read(); }
 
   private:
     template<typename W, typename = void>

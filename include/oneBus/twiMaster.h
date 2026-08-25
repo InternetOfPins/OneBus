@@ -64,7 +64,7 @@ namespace oneBus {
     static void    write_byte(uint8_t)               {}
     static void    end_write()                       {}
     static uint8_t request_from(uint8_t, uint8_t n) { return n; }
-    static uint8_t read_byte()                       { return 0; }
+    [[nodiscard]] static uint8_t read_byte()                       { return 0; }
   };
 
   static_assert(is_twi_master<TwiMasterTerm>::value,

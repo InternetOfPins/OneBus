@@ -34,9 +34,9 @@ namespace oneBus {
   // 1-Wire bus terminal — primitives a hardware core must implement.
   struct OneWireAPI : BusAPI {
     OneWireAPI() = delete;
-    static bool ow_reset()         = delete;  // 480μs reset; returns true if device present
+    [[nodiscard]] static bool ow_reset()         = delete;  // 480μs reset; returns true if device present
     static void ow_write_bit(bool) = delete;
-    static bool ow_read_bit()      = delete;
+    [[nodiscard]] static bool ow_read_bit()      = delete;
   };
 
   // Protocol layer — sits on top of any OneWireCore.
@@ -47,12 +47,12 @@ namespace oneBus {
       using Base = O;
 
       static void begin()  { Base::begin(); }
-      static bool reset()  { return Base::ow_reset(); }
+      [[nodiscard]] static bool reset()  { return Base::ow_reset(); }
 
       static void writeByte(uint8_t b) {
         for (uint8_t i = 0; i < 8; ++i) { Base::ow_write_bit(b & 1u); b >>= 1; }
       }
-      static uint8_t readByte() {
+      [[nodiscard]] static uint8_t readByte() {
         uint8_t b = 0;
         for (uint8_t i = 0; i < 8; ++i)
           if (Base::ow_read_bit()) b |= uint8_t(1u << i);
@@ -80,7 +80,7 @@ namespace oneBus {
     struct Part : O {
       static void begin() { pinMode(PinN, INPUT_PULLUP); O::begin(); }
 
-      static bool ow_reset() {
+      [[nodiscard]] static bool ow_reset() {
         noInterrupts();
         pinMode(PinN, OUTPUT);
         digitalWrite(PinN, LOW);
@@ -115,7 +115,7 @@ namespace oneBus {
         }
       }
 
-      static bool ow_read_bit() {
+      [[nodiscard]] static bool ow_read_bit() {
         noInterrupts();
         pinMode(PinN, OUTPUT);
         digitalWrite(PinN, LOW);
@@ -179,7 +179,7 @@ namespace oneBus {
       // 1-Wire reset: 480 μs LOW, then sample presence pulse at 70 μs.
       // Interrupts enabled during long LOW pulse and recovery; disabled only
       // during the 70 μs sample window where a 1-2 μs glitch would be wrong.
-      static bool ow_reset() {
+      [[nodiscard]] static bool ow_reset() {
         cli();
         _low();
         sei();
@@ -218,7 +218,7 @@ namespace oneBus {
 
       // Read slot: LOW for 6 μs, release, sample at 9 μs, 55 μs recovery.
       // Interrupts disabled through sample point to prevent read jitter.
-      static bool ow_read_bit() {
+      [[nodiscard]] static bool ow_read_bit() {
         cli();
         _low();
         _delay_us(6);

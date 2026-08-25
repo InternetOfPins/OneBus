@@ -59,7 +59,7 @@ namespace oneBus {
         return n;
       }
 
-      static uint8_t read_byte() {
+      [[nodiscard]] static uint8_t read_byte() {
         uint8_t b = Base::twi_read(_rcount > 1);    // ACK if more to come
         if (--_rcount == 0) Base::twi_stop();
         return b;

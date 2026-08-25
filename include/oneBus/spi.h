@@ -37,7 +37,7 @@ namespace oneBus {
         Base::begin();
       }
 
-      static uint8_t transfer(uint8_t b)                  { return Base::spi_transfer(b); }
+      [[nodiscard]] static uint8_t transfer(uint8_t b)                  { return Base::spi_transfer(b); }
       static void    send(const uint8_t* buf, uint16_t n)  { while (n--) Base::spi_transfer(*buf++); }
       static void    fill(uint8_t b, uint16_t n)            { while (n--) Base::spi_transfer(b); }
     };
@@ -61,7 +61,7 @@ namespace oneBus {
       static void select()   { *reinterpret_cast<volatile uint8_t*>(CsPortAddr) &= ~uint8_t(1u << CsBit); }
       static void deselect() { *reinterpret_cast<volatile uint8_t*>(CsPortAddr) |=  uint8_t(1u << CsBit); }
 
-      static uint8_t transfer(uint8_t b)                  { return Base::transfer(b); }
+      [[nodiscard]] static uint8_t transfer(uint8_t b)                  { return Base::transfer(b); }
       static void    send(const uint8_t* buf, uint16_t n)  { Base::send(buf, n); }
       static void    fill(uint8_t b, uint16_t n)            { Base::fill(b, n); }
     };
