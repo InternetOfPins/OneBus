@@ -9,12 +9,14 @@ namespace oneBus {
   };
 
   // UART terminal — deletes primitives so a missing core is a compile error.
-  // putch/getch/available are the public API; uart_init is the private init primitive.
+  // putch/getch/available/ready are the public API; uart_init is the private init primitive.
+  // available() = RX has a byte to read; ready() = TX will accept a byte without busy-waiting.
   struct UartAPI : BusAPI {
     static void    uart_init(uint32_t) = delete;
     static void    putch(uint8_t)      = delete;
     [[nodiscard]] static uint8_t getch()             = delete;
     [[nodiscard]] static bool    available()         = delete;
+    [[nodiscard]] static bool    ready()             = delete;
   };
 
   // I2C/TWI terminal
