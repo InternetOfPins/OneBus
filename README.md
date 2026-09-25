@@ -36,6 +36,22 @@ MyI2c::write_byte(data);
 MyI2c::end_write();
 ```
 
+`end_write()` returns `true` iff everything was acknowledged, and `begin_write()` returns `false` when the address is known not to have
+answered (a buffered master, such as Arduino Wire, can only say at `end_write()`). `request_from()` returns `0` when nothing answered.
+`cause()` says why the last operation failed (`oneBus::TwiCause`: `Nack`, `Timeout`, `BusError`, `ArbLost`, …); a NACK is not a bus fault.
+
+```cpp
+if (oneBus::probe<MyI2c>(0x27)) { /* something answers at 0x27 */ }   // SLA+W then STOP; read-probe in 0x30-0x37, 0x50-0x5F
+auto r = oneBus::scan<MyI2c>([](uint8_t addr) { /* present */ });   // 0x08..0x77; r.found addresses answered
+if (r.stopped != oneBus::TwiCause::None) { /* the bus failed (Timeout, BusError, ArbLost) and ended the scan there */ }
+```
+
+The read-probe in 0x30-0x37 and 0x50-0x5F is there because a zero-length write can disturb some EEPROMs (AT24RF08-class parts, DIMM SPD).
+**On ESP32 those ranges are probed with a write-probe by default**: its I2C driver takes at least a second to give up on a read whose
+address is not acknowledged (measured on Arduino-ESP32 2.0.6), which would make a scan cost 24 s. Define `ONEBUS_ESP32_READ_PROBE` to
+get the read-probe there, at that price per absent address; a build with a sensitive part on the bus can also leave those ranges out
+of its own scan.
+
 ## UART
 
 ```cpp

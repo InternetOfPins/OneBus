@@ -20,6 +20,7 @@
 #ifdef ARDUINO
 #include <Wire.h>
 #include <stdint.h>
+#include <oneBus/busAPI.h>
 #ifdef __AVR__
   #include <hapi/platform/avr/avr_std.h>  // no <type_traits> on AVR, even under Arduino
 #else
@@ -31,14 +32,25 @@ namespace oneBus {
   /// @brief Arduino Wire TwiMaster adapter; SFINAE-detects begin(sda,scl) vs begin()
   template<TwoWire& wire, int sda = -1, int scl = -1>
   struct ArduinoWire {
+    inline static TwiCause _cause = TwiCause::None;
+
     static void    begin()                                { _begin(wire); }
-    static void    begin_write(uint8_t addr)              { wire.beginTransmission(addr); }
+    // Wire buffers the transaction: the address is only put on the wire, and acknowledged, in end_write()
+    static bool    begin_write(uint8_t addr)              { wire.beginTransmission(addr); return true; }
     static void    write_byte(uint8_t b)                  { wire.write(b); }
-    static void    end_write()                            { wire.endTransmission(); }
+    static bool    end_write() {
+      const uint8_t e = wire.endTransmission();
+      _cause = twiCauseFromWire(e);
+      return e == 0;
+    }
+    // requestFrom() returns 0 on any failure and does not say why
     [[nodiscard]] static uint8_t request_from(uint8_t addr, uint8_t n) {
-      return (uint8_t)wire.requestFrom(addr, (uint8_t)n);
+      const uint8_t got = (uint8_t)wire.requestFrom(addr, (uint8_t)n);
+      _cause = got ? TwiCause::None : TwiCause::Unknown;
+      return got;
     }
     [[nodiscard]] static uint8_t read_byte()                            { return (uint8_t)wire.read(); }
+    static TwiCause cause()                                             { return _cause; }
 
   private:
     template<typename W, typename = void>
