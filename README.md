@@ -9,18 +9,34 @@ Part of the [InternetOfPins](https://github.com/InternetOfPins) project family.
 ## SPI
 
 ```cpp
-#include <oneBus/spiMaster.h>
+#include <oneBus/spi.h>
 using namespace oneBus;
 
-// AVR hardware SPI — clock = F_CPU / speed_divisor
-using MySpi = SpiMaster<SPI_CLOCK_DIV4>;
-MySpi::begin();
-MySpi::select();             // assert CS (your OutPin)
-uint8_t b = MySpi::transfer(0xFF);
-MySpi::deselect();
+// a chip's core (from OneChip) under the protocol layer, a chip select above it
+using Dev = hapi::APIOf<SpiAPI, CsPin<MyCsPin>, SpiMaster<4000000>, hw::avr::AvrSpiCore<16000000>>;
+Dev::begin();
+Dev::select();               // CS low
+uint8_t b = Dev::transfer(0xFF);
+Dev::deselect();
 ```
 
-For ESP32: `Esp32SpiMaster<>` in [OneChip](https://github.com/InternetOfPins/OneChip), which also provides `transfer(buf, len)`.
+`CsPin<Pin>` takes any pin type with `begin()/on()/off()` (OneChip's, OnePin's), so it is not tied to one chip family.
+`ChipSelect<PortAddr, Bit>` is the older AVR-only form (a raw `PORTx` address).
+
+A shared bus whose devices are found at runtime declares its chip selects statically, one **slot** each, with `SpiSlots`;
+which device sits behind a slot, if any, is the runtime question:
+
+```cpp
+using Bus = hapi::APIOf<SpiAPI, SpiSlots<CsA, CsB, CsC>, SpiMaster<4000000>, Core>;
+Bus::begin();                       // every CS high first, so no device sees a stray select
+Bus::setup(1000000, 0);             // the device's own clock and mode (0-3) before talking to it
+uint8_t tx[2] = {0xD0, 0}, rx[2];
+Bus::xfer(1, tx, rx, 2);            // slot 1 selected for the whole exchange; rx[1] is the reply
+```
+
+`setup()` uses the core's `spi_setup(hz, mode)` when it has one; a core without it (the AVR core takes its mode as a
+template parameter) gets only the clock. SPI has no acknowledge: an empty slot reads whatever the idle MISO line gives
+(0x00 or 0xFF), so presence is a question of identity (an ID register), not of an answer.
 
 ## I2C / TWI
 
